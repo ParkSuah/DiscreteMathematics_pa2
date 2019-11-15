@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <h1 style="text-align: center">Fractal 1</h1>
+  </head>
+  <body>
+    <div>
+      <hr>-Instruction-<br>
+      <br>
+      1. Enter depth and length in textbox.<br>
+      - The left textbox is depth, and the right textbox is length.<br>
+      - canvas size is width=600, height=500.<br>
+      - The length is set to 100 by default.<br>
+      - If you want to draw the fractal shape with the input you entered on the canvas, click "Draw".<br>
+      - If you want to erase the fractal shape on the canvas, click "Clear".<br>
+      <hr>
+  
+    </div>
+    
+  <input type="text" id="depth" value="">
+  <input type="text" id="angle" value="100">
+
+  <button onclick="doDraw()">Draw</button>
+  <button onclick="doClear()">Clear</button>
+  <br>
+  <canvas id="canvas" width="600" height="500"></canvas>
+
+  <script type="text/javascript">
+  var elem = document.getElementById('canvas');
+  var context = elem.getContext('2d');
+  context.fillStyle = '#000';
+  context.lineWidth = 1;
+  //var depth = 1;
+  function drawLine(x1, y1, x2, y2){
+    context.moveTo(x1, y1);
+    context.lineTo(x2, y2);
+  }
+
+  var i;
+  var dx=[1, 0, -1, 0];
+  var dy=[0, 1, 0, -1];
+
+  function drawPlus(x, y, depth,length, dir){
+
+    if (depth !== 0){
+
+      var newdir=(dir+2)%4;
+      console.log(newdir);
+      for(var i=0; i<4; i++){
+        if(i!=newdir)
+          drawLine(x, y, x+(dx[i]*length), y+(dy[i]*length));
+      }
+      for(var i=0; i<4; i++){
+        if(i!=newdir)
+          drawPlus(x+(dx[i]*length), y+(dy[i]*length), depth - 1, (1/2)*length, i);
+      }
+      
+
+    }
+  }
+
+  function doDraw(){
+    var depth = parseInt(document.getElementById("depth").value) ;
+    var length = parseInt(document.getElementById("angle").value) ;
+    
+    context.beginPath();
+    drawPlus(300, 250, depth , length);
+    context.closePath();
+    context.stroke();
+  }
+  function doClear() {
+    context.clearRect(0, 0, canvas.width, canvas.height) ;
+  }
+  </script>
+
+  </body>
+</html>
