@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <h1 style="text-align: center">Triangulation</h1>
+    </head>
+    <body>
+            <div>
+                    This program solves triangulation problem.<br>
+                    <hr>
+                    -Instruction-<br>
+                    1. Enter x and y coordinates in textbox.<br>
+                    - x and y value must not exceed 100 and must be greater than 0.<br>
+                    - There must be at least 3 inputs given to execute the program.<br>
+                    - If you entered wrong input, click "Clear" to reset inputs.<br>
+                    2. When all inputs are entered, click "Start" button to get triangulation result.<br>
+                    - If given inputs cannot form a simple polygon, the program terminates with pop up, noticing the user.<br>
+                    - If given inputs form a simple polygon, the program notices the user that triangulation will be proceeded.<br>
+                    <hr>       
+            </div>
+
+        <label>x<input type="text" id = "x_coord" value=""></label>
+        <label>y</label><input type="text" id = "y_coord" value=""></label>
+        <button id="insert_but" type="button">Insert</button><br>
+        <svg id="canvas" width="150" height="150"></svg>
+        <br>
+        <button id="start_but" type="button">Start</button>
+        <button id="clear_but" type="button">Clear</button>
+        
+<script type="text/javascript">
+
+var points = [];
+var svg_url = 'http://www.w3.org/2000/svg';
+var canvas = document.getElementById('canvas');
+var start_but = document.getElementById('start_but');
+var insert_but = document.getElementById('insert_but');
+
+
+start_but.addEventListener('click', function() {
+    if (points.length > 2) {
+        drawLineToPoints(points[points.length-1], points[0]);
+        isPoly(points);
+    }
+    else
+        alert('Need more points');
+});
+
+insert_but.addEventListener('click', function(){
+    var x_i = parseInt(document.getElementById('x_coord').value) + 10; // +10 : preventing screen overflow
+    var y_i = parseInt(document.getElementById('y_coord').value) + 10;
+    
+    if(x_i > 110 || y_i > 110)
+        alert('Needs to be range between 1~100');
+    else{
+        points.push(plotPoint(x_i,y_i)); 
+
+        if (points.length > 1) 
+            drawLineToPoints(points[points.length-1], points[points.length-2]);
+    }
+});
+
+clear_but.addEventListener('click', function() {
+    clear();
+});
+
+
+function plotPoint(x, y) {
+    var coord_label = document.createElementNS(svg_url, 'label');
+    var cir = document.createElementNS(svg_url, 'circle');
+    cir.setAttributeNS(null, 'cx', x);
+    cir.setAttributeNS(null, 'cy', y);
+    cir.setAttributeNS(null, 'r', 1);
+    cir.setAttributeNS(null, 'fill', 'black');
+    canvas.appendChild(cir);
+    var point = new Point(x,y);
+    return point;
+}
+
+function drawLineToPoints(a, b) {
+    var line = document.createElementNS(svg_url, 'line');
+    line.setAttributeNS(null, 'x1', a.x);
+    line.setAttributeNS(null, 'y1', a.y);
+    line.setAttributeNS(null, 'x2', b.x);
+    line.setAttributeNS(null, 'y2', b.y);
+    line.setAttributeNS(null, 'stroke', 'black'); 
+    canvas.appendChild(line);
+}
+
+function drawSubTriangle(triangle) {
+    var polygon = document.createElementNS(svg_url, 'polygon');
+    polygon.setAttributeNS(null, 'points', triangle.a.x + ','+ triangle.a.y + ' ' + triangle.b.x +',' + triangle.b.y + ' ' + triangle.c.x +',' + triangle.c.y);
+    polygon.setAttributeNS(null, 'fill', 'white');
+    polygon.setAttributeNS(null, 'stroke', 'red'); 
+    canvas.insertBefore(polygon, canvas.childNodes[0]);
+}
+
+function drawSubTriangles(triangles) {
+    for (var i = 0; i < triangles.length; i++) {
+        drawSubTriangle(triangles[i]);
+    } 
+}
+
+function angle(a, b, c) {
+    var inner_angle = Math.atan2((c.y - b.y) , (c.x - b.x)) - Math.atan2((a.y-b.y) , (a.x-b.x));
+  
+    if(inner_angle < 0) inner_angle += Math.PI*2;
+    
+    return inner_angle;
+}                                                                            
+
+function Triangle(a, b, c) {
+    this.a = a;
+    this.b = b;
+    this.c = c;
+}
+
+function Point(x, y) {
+    this.x = x;
+    this.y = y;
+}
+
+function area(a,b,c){
+    return Math.abs((a.x*(b.y-c.y) + b.x*(c.y-a.y) + c.x*(a.y-b.y))/2.0);
+}
+
+function checkPointTriangle(a,b,c,point){
+    var A = area(a,b,c);
+    var A1 = area(point,b,c);
+    var A2 = area(a,point,c);
+    var A3 = area(a,b,point);
+
+    return (A == (A1 + A2 + A3));
+}
+
+function getMiddlePointAngles(points) {
+    var sum = 0;
+    for (var i = 0; i < points.length; i++) {
+        points[(i+1) % points.length].angle = angle(points[i% points.length], points[(i+1) % points.length], points[(i+2) % points.length]) * 180 / Math.PI;
+
+        sum += points[(i+1)%points.length].angle;
+        
+    }
+    return sum;
+}
+
+function isPoly(points){
+
+    var triangles = [];
+  
+    if (angle(points[0], points[1], points[2]) > Math.PI) {
+         points.reverse();
+    }
+    
+    if((getMiddlePointAngles(points) <= ((points.length-2)*180) + 0.5) && (getMiddlePointAngles(points) >= ((points.length-2)*180) - 0.5)){
+        alert("Simple Polygon!\n Triangulating..");
+        triangulate(points, triangles, 1);
+    }
+
+    else{  
+        alert("Not a Simple Polygon!");
+    }
+
+}
+
+function triangulate(points, triangles, i) {
+    var a,b,c;
+
+    a = points[i % points.length];
+    b = points[(i+1) % points.length];
+    c = points[(i+2) % points.length];
+
+    if(points.length == 3){
+        triangles.push(new Triangle(points[0], points[1], points[2]));
+        drawSubTriangles(triangles);
+        return;
+    }
+    
+    if (angle(a,b,c) < Math.PI) {
+        for(var j = i+3; j < points.length + i + 3; j++) {
+            if(!(checkPointTriangle(a,b,c, points[j % points.length]))){
+                points.splice((i+1) % points.length,1);
+                triangles.push(new Triangle(a,b,c));  
+                break;
+            }    
+        }
+    }
+    i++;
+    triangulate(points, triangles, i); 
+}   
+function clearCanvas(){
+    canvas.innerHTML = ''; 
+}
+function clear() {
+    points = []; 
+    clearCanvas();  
+}
+
+
+</script>
+</body>
+</html> 
