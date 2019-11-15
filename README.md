@@ -6,8 +6,7 @@
 * The number of left brackets and right brackets must be the same.
 * Input must be the complete form of propositional formula.
 
-
-###### input example
+###### Input example
     (or a1 (not (or (not (or a2 a3)) a4)))
 
 ###### -Output : At output expression, the numbers in the same row are all connected by disjunction, and each row is connected by conjunction. And the program must print out an error message if the given input does not follow the rule.
