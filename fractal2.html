@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <h1 style="text-align: center">Fractal 2</h1>
+  </head>
+  <body>
+    <div>
+      <hr>-Instruction-<br>
+      <br>
+       1. Enter depth in textbox.<br>
+       - canvas size is width=600, height=500.<br>
+       - If you want to draw the fractal shape with the input you entered on the canvas, click "Draw".<br>
+       - If you want to erase the fractal shape on the canvas, click "Clear".<br>
+      <hr>
+    </div>    
+
+  <input type="text" id="depth" value="">
+  <button onclick="doDraw()">Draw</button>
+  <button onclick="doClear()">Clear</button>
+  <br>
+  <canvas id="canvas" width="600" height="500"></canvas>
+
+  <script type="text/javascript">
+  var elem = document.getElementById('canvas');
+  var context = elem.getContext('2d');
+
+  context.fillStyle = '#000';
+  context.lineWidth = 1;
+  //var depth = 1;
+  function drawLine(x1, y1, x2, y2){
+    context.moveTo(x1, y1);
+    context.lineTo(x2, y2);
+  }
+
+  function drawTree(x1,y1,x2,y2,angle,depth){
+    
+    if(depth==1){
+      drawLine(x1,y1,x2,y2);
+      return;
+    }
+    if( depth>1) {
+      var xa = x1 + 6/13 * (x2 - x1);
+      var ya = y1 + 6/13 * (y2 - y1);
+      
+      var xb = x1 + 7/13 * (x2 - x1);
+      var yb = y1 + 7/13 * (y2 - y1);
+      
+      var xc = xa + (xa - x1) * Math.cos(-angle) - (ya - y1) * Math.sin(-angle);
+      var yc = ya + (ya - y1) * Math.cos(-angle) + (xa - x1) * Math.sin(-angle);
+        
+      drawTree(x1,y1, xa,ya, angle ,depth-1);
+      drawTree(xa,ya, xc,yc, angle, depth-1);
+      drawTree(xc,yc, xb,yb, angle, depth-1);
+      drawTree(xb,yb, x2,y2, angle, depth-1); 
+    }
+  }
+
+  function doDraw(){
+      var depth= parseInt(document.getElementById("depth").value);
+      
+      var angle=Math.PI/2.1;
+
+      context.beginPath();
+      drawTree(50,300,550,300,angle,depth);
+      context.closePath();
+      context.stroke();
+  }
+
+  function doClear() {
+    context.clearRect(0, 0, canvas.width, canvas.height) ;
+  }
+  </script>
+
+  </body>
+</html>
