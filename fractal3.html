@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <h1 style="text-align: center">Fractal 3</h1>
+    </head>
+    <body>
+        <div>
+            <hr>-Instruction-<br>
+            <br>
+            - canvas size is width=600, height=500.<br>	
+            - Running the file will start the program immediately.<br>
+            - The tree grows every second before the tree grows as much as the set stage.<br>
+            - When the trees are grown, flower-shaped fractals appear on the grass background.<br>
+            - If flower-shped fractals appear, the program is completed.<br>
+            <hr>
+        </div>
+    <canvas id="canvas" width="600" height="500"></canvas>
+
+    <script type="text/javascript">
+    var elem = document.getElementById('canvas');
+    var context = elem.getContext('2d');
+    context.fillStyle = '#000';
+    context.lineWidth = 2.7;
+    var deg_to_rad = Math.PI / 180.0;
+    var real_depth;
+    //var depth = 1;
+    function drawLine(x1, y1, x2, y2,color){
+
+    context.beginPath();
+    context.moveTo(x1, y1);
+    context.lineTo(x2, y2);
+    context.closePath();
+    context.stroke();
+    context.strokeStyle=color;
+
+    }
+    
+    function drawTree(x1, y1, angle, depth, angle_d,color){
+    
+    if (depth!=0){
+        var x2 = x1 + (Math.cos(angle * deg_to_rad) * depth * 10.0);
+        var y2 = y1 + (Math.sin(angle * deg_to_rad) * depth * 10.0);
+        
+        drawLine(x1, y1, x2, y2,color);
+        if(depth==4)
+        angle_d=10;
+        if(depth<4)
+        angle_d=30;
+
+        drawTree(x2, y2, angle - angle_d, depth-1 , angle_d,new String("#688A08"));
+        drawTree(x2, y2, angle + angle_d, depth-1, angle_d,new String("#688A08"));
+        drawTree(x2, y2, angle+(angle_d-36), depth-1 , angle_d,new String("#688A08"));
+        drawTree(x2, y2, angle-(angle_d-24), depth-1 , angle_d,new String("#688A08"));
+        drawTree(x2, y2, angle-(angle_d+22), depth-1 , angle_d,new String("#688A08"));
+        drawTree(x2, y2, angle+(angle_d+25), depth-1 , angle_d,new String("#610B0B"));
+    } 
+    }
+
+    function drawTree2(x1, y1, angle, depth, angle_d,color){
+    
+    if (depth!=0){
+        var x2 = x1 + (Math.cos(angle * deg_to_rad) * depth * 10.0);
+        var y2 = y1 + (Math.sin(angle * deg_to_rad) * depth * 10.0);
+        
+        drawLine(x1, y1, x2, y2,color);
+        
+        if(depth<3)
+        angle_d=30;
+
+        drawTree(x2, y2, angle - angle_d, depth-1 , angle_d,new String("#688A08"));
+        drawTree(x2, y2, angle + angle_d, depth-1, angle_d,new String("#688A08"));
+        drawTree(x2, y2, angle+(angle_d-36), depth-1 , angle_d,new String("#688A08"));
+        drawTree(x2, y2, angle-(angle_d-24), depth-1 , angle_d,new String("#688A08"));
+        drawTree(x2, y2, angle-(angle_d+22), depth-1 , angle_d,new String("#688A08"));
+        drawTree(x2, y2, angle+(angle_d+25), depth-1 , angle_d,new String("#610B0B"));
+    } 
+    }
+
+    var depth = 1;
+    var depth2 = 0;
+    var angle_d = 30 ;
+    var x1=200,y1=280;
+    var angle=-90;
+    var background=new Image();
+    background.src="tree.jpeg";
+
+    background.onload=function(){
+    context.drawImage(background,0,0, canvas.width, canvas.height);
+    }
+
+    var doIt = setInterval(function(){
+    context.drawImage(background,0,0, canvas.width, canvas.height);
+
+    drawTree(x1, y1, angle, depth, angle_d,new String("#61210B"));
+
+    drawTree2(485, 343, -angle, depth2, angle_d+67, new String("#61210B"));
+    
+    depth=depth+1;
+    depth2=depth2+1;
+
+    if(depth==7){
+        clearInterval(doIt);
+    }
+    }, 1000);
+
+
+
+    var degree72=72*(Math.PI / 180);
+    var scaleFactor=1/(2+Math.cos(degree72)*2);
+
+    function drawFlower(x,y,side,depth,color){
+        var angles=3*degree72;
+
+        if(depth ==0){
+            context.beginPath();
+            context.moveTo(x,y);
+
+            for(var i=0; i<5; i++){
+                x=x+Math.cos(angles)*side;
+                y=y-Math.sin(angles)*side;
+                context.lineTo(x,y);
+                angles += degree72;
+            }
+            context.fillStyle=color;
+            context.closePath();
+            context.fill();
+        }
+        else{
+            side*=scaleFactor;
+
+            var distance = side +side * Math.cos(degree72)*2;
+
+            for(var j=0; j<5; j++){
+                x=x+Math.cos(angles)*distance;
+                y=y-Math.sin(angles)*distance;
+                drawFlower(x,y,side,depth-1,color);
+                angles += degree72;
+            }
+        }
+    }
+
+    var size=115;
+    var margin=20;
+    var radius=size/2  - 2 * margin;
+    var side=radius*Math.sin(Math.PI /5)*2;
+    var colors;
+
+    var doThat=setTimeout(function(){
+        colors="#B40404";
+        drawFlower(180,400,side,6,colors);
+        drawFlower(260,460,side,6,colors);
+        drawFlower(70,330,side,6,colors);
+        colors="#FFFF00";
+        drawFlower(330,320,side,6,colors);
+        drawFlower(25,450,side,6,colors);
+        colors="#BF00FF";
+        drawFlower(80,409,side,6,colors);
+        drawFlower(180,300,side,6,colors);
+        drawFlower(260,360,side,6,colors);
+    },7000);
+
+
+    </script>
+
+    </body>
+</html>
